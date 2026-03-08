@@ -5,12 +5,20 @@
     <title>Groww HDFC MF RAG Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+      :root {
+        --hdfc-blue: #1d4b8f;
+        --hdfc-red: #e11939;
+        --groww-green: #00d09c;
+        --bg-dark: #0f172a;
+        --bg-header: #020617;
+        --border-color: #1f2937;
+      }
       body {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
         margin: 0;
         padding: 0;
-        background: #0f172a;
+        background: var(--bg-dark);
         color: #e5e7eb;
         display: flex;
         flex-direction: column;
@@ -18,105 +26,143 @@
       }
       header {
         padding: 1rem 1.5rem;
-        background: #020617;
-        border-bottom: 1px solid #1f2937;
+        background: var(--bg-header);
+        border-bottom: 3px solid var(--groww-green);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
       header h1 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      header h1::before {
+        content: "";
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: var(--hdfc-red);
+        border-radius: 2px;
       }
       header p {
-        margin: 0.25rem 0 0;
-        font-size: 0.8rem;
+        margin: 0.4rem 0 0;
+        font-size: 0.85rem;
         color: #9ca3af;
       }
       main {
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 1rem;
-        gap: 0.75rem;
+        padding: 1.5rem;
+        gap: 1rem;
         overflow: hidden;
+        background: radial-gradient(circle at top right, #1e293b, #0f172a);
       }
       #messages {
         flex: 1;
         overflow-y: auto;
-        padding-right: 0.25rem;
+        padding-right: 0.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--groww-green) transparent;
       }
       .msg {
-        max-width: 80%;
-        margin-bottom: 0.75rem;
-        padding: 0.6rem 0.75rem;
-        border-radius: 0.5rem;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        max-width: 85%;
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
       }
       .msg.user {
         margin-left: auto;
-        background: #1d4ed8;
+        background: linear-gradient(135deg, var(--hdfc-blue), #2563eb);
+        color: white;
+        border-bottom-right-radius: 2px;
       }
       .msg.bot {
         margin-right: auto;
-        background: #111827;
-        border: 1px solid #1f2937;
+        background: #1e293b;
+        border: 1px solid var(--border-color);
+        border-bottom-left-radius: 2px;
+      }
+      .msg.bot::after {
+        content: "HDFC MF Assistant";
+        position: absolute;
+        top: -1.2rem;
+        left: 0;
+        font-size: 0.7rem;
+        color: var(--groww-green);
+        font-weight: 600;
+        text-transform: uppercase;
       }
       form {
         display: flex;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem 1rem;
-        border-top: 1px solid #1f2937;
-        background: #020617;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem 1.5rem;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-header);
       }
       textarea {
         flex: 1;
         resize: none;
-        min-height: 2.5rem;
-        max-height: 6rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.5rem;
-        border: 1px solid #1f2937;
-        background: #020617;
-        color: #e5e7eb;
+        min-height: 2.8rem;
+        max-height: 8rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: #111827;
+        color: #f3f4f6;
         font-family: inherit;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
       }
       textarea:focus {
         outline: none;
-        border-color: #3b82f6;
+        border-color: var(--groww-green);
       }
       button {
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
+        padding: 0 1.5rem;
+        border-radius: 10px;
         border: none;
-        background: #3b82f6;
-        color: white;
-        font-size: 0.9rem;
+        background: var(--groww-green);
+        color: #020617;
+        font-size: 0.95rem;
+        font-weight: 600;
         cursor: pointer;
-        white-space: nowrap;
+        transition: opacity 0.2s, transform 0.1s;
+      }
+      button:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+      button:active {
+        transform: translateY(0);
       }
       button:disabled {
-        opacity: 0.6;
-        cursor: default;
+        opacity: 0.5;
+        cursor: not-allowed;
       }
-      .meta {
-        font-size: 0.75rem;
-        color: #9ca3af;
-        margin-top: 0.25rem;
+      .source-link {
+        color: var(--groww-green);
+        text-decoration: none;
+        font-weight: 500;
       }
-      a {
-        color: #60a5fa;
+      .source-link:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>Groww HDFC Mutual Fund Chatbot (RAG)</h1>
+      <h1>Groww × HDFC Mutual Fund Assistant</h1>
       <p>
-        Answers factual questions about selected HDFC schemes on Groww using
-        only official public information. No investment advice or personal
-        data.
+        Factual information on HDFC MF schemes powered by Groww data.
       </p>
     </header>
     <main>
@@ -125,7 +171,7 @@
     <form id="chat-form">
       <textarea
         id="message-input"
-        placeholder="Ask about expense ratio, exit load, minimum SIP, lock-in, riskometer, benchmark, or how to download statements..."
+        placeholder="Type your question here... (Enter to send)"
       ></textarea>
       <button type="submit">Send</button>
     </form>
@@ -144,7 +190,7 @@
       }
 
       async function sendMessage(ev) {
-        ev.preventDefault();
+        if (ev) ev.preventDefault();
         const text = inputEl.value.trim();
         if (!text) return;
 
@@ -165,23 +211,39 @@
           appendMessage(data.answer, "bot");
         } catch (err) {
           appendMessage(
-            "There was an error contacting the chatbot. Please try again.",
+            "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
             "bot"
           );
         } finally {
           buttonEl.disabled = false;
           inputEl.focus();
+          // Reset height
+          inputEl.style.height = "auto";
         }
       }
 
       formEl.addEventListener("submit", sendMessage);
 
+      // Keyboard support: Enter to send, Shift+Enter for new line
+      inputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Auto-resize textarea
+      inputEl.addEventListener("input", function() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+      });
+
       // Initial system message
       appendMessage(
-        "You can ask factual questions about these HDFC schemes on Groww: expense ratio, exit load, minimum SIP, lock-in, riskometer, benchmark, and how to download statements. I will always include at least one official source link and cannot provide investment advice or handle personal information.",
+        "Hi! How can I help you today? I can answer factual questions about HDFC mutual fund schemes on Groww, like expense ratios, exit loads, or how to download your statements.",
         "bot"
       );
     </script>
   </body>
-  </html>
+</html>
 
