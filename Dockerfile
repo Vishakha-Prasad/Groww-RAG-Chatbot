@@ -27,5 +27,5 @@ COPY . .
 
 EXPOSE 8000
 
-# Default command: start the FastAPI app
-CMD ["bash", "-c", "cd phase-5-app-backend-frontend && uvicorn main:app --host 0.0.0.0 --port 8000"]
+# Default command: start the FastAPI app using the dynamic PORT provided by the environment
+CMD ["bash", "-c", "cd phase-5-app-backend-frontend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
