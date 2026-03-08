@@ -13,7 +13,8 @@ dist/
 *.log
 refresh_log.json
 chat_events.jsonl
-*.pkl
+# *.pkl is normally ignored, but we need index.pkl for deployment
+!phase-2-knowledge-base/index.pkl
 out/
 node_modules/
 .DS_Store
