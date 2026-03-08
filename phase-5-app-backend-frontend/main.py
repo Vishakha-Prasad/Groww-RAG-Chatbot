@@ -66,37 +66,47 @@ async def chat(req: ChatRequest) -> ChatResponse:
     """
     Chat endpoint wiring Phase 3 (orchestration) and Phase 4 (guardrails).
     """
-    phase3_result = answer_query(req.message)
-    answer_text: str = phase3_result.get("answer", "")
-    intent: str = phase3_result.get("intent", "UNKNOWN")
-    used_chunks: List[Dict[str, Any]] = phase3_result.get("used_chunks", [])
+    try:
+        phase3_result = answer_query(req.message)
+        answer_text: str = phase3_result.get("answer", "")
+        intent: str = phase3_result.get("intent", "UNKNOWN")
+        used_chunks: List[Dict[str, Any]] = phase3_result.get("used_chunks", [])
 
-    safety = check_answer(answer_text)
-
-    # If advice/personal-info language leaked through, override answer.
-    if safety.get("has_advice_language") or safety.get("has_personal_info_language"):
-        answer_text = (
-            "I can only share factual information about the supported HDFC mutual fund schemes on Groww. "
-            "I cannot provide investment advice, recommendations, comparisons, or handle personal information. "
-            "Please refer to the official Groww pages such as https://groww.in/mutual-funds/user/explore "
-            "for more details."
-        )
         safety = check_answer(answer_text)
 
-    # Ensure at least one allowed source URL is present.
-    if not safety.get("has_allowed_source_url"):
-        answer_text = (
-            f"{answer_text.rstrip()} "
-            "Source: https://groww.in/mutual-funds/user/explore"
-        )
-        safety = check_answer(answer_text)
+        # If advice/personal-info language leaked through, override answer.
+        if safety.get("has_advice_language") or safety.get("has_personal_info_language"):
+            answer_text = (
+                "I can only share factual information about the supported HDFC mutual fund schemes on Groww. "
+                "I cannot provide investment advice, recommendations, comparisons, or handle personal information. "
+                "Please refer to the official Groww pages such as https://groww.in/mutual-funds/user/explore "
+                "for more details."
+            )
+            safety = check_answer(answer_text)
 
-    return ChatResponse(
-        answer=answer_text,
-        intent=intent,
-        safety=safety,
-        used_chunks=used_chunks,
-    )
+        # Ensure at least one allowed source URL is present.
+        if not safety.get("has_allowed_source_url"):
+            answer_text = (
+                f"{answer_text.rstrip()} "
+                "Source: https://groww.in/mutual-funds/user/explore"
+            )
+            safety = check_answer(answer_text)
+
+        return ChatResponse(
+            answer=answer_text,
+            intent=intent,
+            safety=safety,
+            used_chunks=used_chunks,
+        )
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        return ChatResponse(
+            answer=f"DEBUG ERROR: {str(e)}\n\n{error_detail}",
+            intent="ERROR",
+            safety={"is_safe": False},
+            used_chunks=[],
+        )
 
 
 if __name__ == "__main__":
