@@ -35,8 +35,20 @@ Since the chatbot uses local files for the knowledge base (`index.pkl`) and logs
 1. In the **Settings** tab, find the **Networking** section.
 2. Click **Generate Domain**. This will give you a public URL (e.g., `groww-rag-chatbot-production.up.railway.app`).
 
-## Step 5: Verify Deployment
-1. Open the generated domain in your browser.
+## Step 5: Custom Domain Setup (Optional)
+If you have your own domain (e.g., `chatbot.yourdomain.com`), follow these steps:
+1. In the **Settings** tab, find the **Networking** section.
+2. Click **+ Custom Domain**.
+3. Enter your domain name and click **Add**.
+4. Railway will provide a **DNS Target** (usually your Railway app's default URL).
+5. Go to your domain registrar (GoDaddy, Namecheap, Google Domains, etc.).
+6. Add a **CNAME record**:
+   - **Host/Name**: `chatbot` (or `@` for root)
+   - **Value/Target**: (The DNS Target provided by Railway)
+7. Wait for DNS propagation (can take from a few minutes to 24 hours). Railway will automatically provision an SSL certificate once the domain is linked.
+
+## Step 6: Verify Deployment
+1. Open the generated domain or your custom domain in your browser.
 2. You should see the Chatbot UI.
 3. Try a query: *"What is the expense ratio of HDFC Small Cap Fund?"*
 
