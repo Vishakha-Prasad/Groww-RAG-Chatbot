@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  chatbot:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - ./phase-1-data-acquisition/out:/app/phase-1-data-acquisition/out
+      - ./phase-2-knowledge-base/index.pkl:/app/phase-2-knowledge-base/index.pkl
+      - ./phase-7-deployment-ops/chat_events.jsonl:/app/phase-7-deployment-ops/chat_events.jsonl
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  refresh-worker:
+    build: .
+    env_file: .env
+    volumes:
+      - ./phase-1-data-acquisition/out:/app/phase-1-data-acquisition/out
+      - ./phase-2-knowledge-base/index.pkl:/app/phase-2-knowledge-base/index.pkl
+      - ./phase-6-scheduler-refresh/refresh_log.json:/app/phase-6-scheduler-refresh/refresh_log.json
+    command: ["python", "phase-6-scheduler-refresh/scheduler.py", "--daemon", "--interval", "24"]
+    restart: always

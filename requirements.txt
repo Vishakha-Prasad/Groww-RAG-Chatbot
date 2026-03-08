@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+groq
+python-dotenv
+scikit-learn
+numpy
+requests
+schedule
+beautifulsoup4
+pytest

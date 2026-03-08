@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Groww HDFC MF RAG Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #0f172a;
+        color: #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      header {
+        padding: 1rem 1.5rem;
+        background: #020617;
+        border-bottom: 1px solid #1f2937;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+      header p {
+        margin: 0.25rem 0 0;
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.75rem;
+        overflow: hidden;
+      }
+      #messages {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+      }
+      .msg {
+        max-width: 80%;
+        margin-bottom: 0.75rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .msg.user {
+        margin-left: auto;
+        background: #1d4ed8;
+      }
+      .msg.bot {
+        margin-right: auto;
+        background: #111827;
+        border: 1px solid #1f2937;
+      }
+      form {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem 1rem;
+        border-top: 1px solid #1f2937;
+        background: #020617;
+      }
+      textarea {
+        flex: 1;
+        resize: none;
+        min-height: 2.5rem;
+        max-height: 6rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid #1f2937;
+        background: #020617;
+        color: #e5e7eb;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        background: #3b82f6;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .meta {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+      }
+      a {
+        color: #60a5fa;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Groww HDFC Mutual Fund Chatbot (RAG)</h1>
+      <p>
+        Answers factual questions about selected HDFC schemes on Groww using
+        only official public information. No investment advice or personal
+        data.
+      </p>
+    </header>
+    <main>
+      <div id="messages"></div>
+    </main>
+    <form id="chat-form">
+      <textarea
+        id="message-input"
+        placeholder="Ask about expense ratio, exit load, minimum SIP, lock-in, riskometer, benchmark, or how to download statements..."
+      ></textarea>
+      <button type="submit">Send</button>
+    </form>
+    <script>
+      const messagesEl = document.getElementById("messages");
+      const formEl = document.getElementById("chat-form");
+      const inputEl = document.getElementById("message-input");
+      const buttonEl = formEl.querySelector("button");
+
+      function appendMessage(text, role) {
+        const div = document.createElement("div");
+        div.className = `msg ${role}`;
+        div.textContent = text;
+        messagesEl.appendChild(div);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      async function sendMessage(ev) {
+        ev.preventDefault();
+        const text = inputEl.value.trim();
+        if (!text) return;
+
+        appendMessage(text, "user");
+        inputEl.value = "";
+        buttonEl.disabled = true;
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text }),
+          });
+          if (!res.ok) {
+            throw new Error("Request failed");
+          }
+          const data = await res.json();
+          appendMessage(data.answer, "bot");
+        } catch (err) {
+          appendMessage(
+            "There was an error contacting the chatbot. Please try again.",
+            "bot"
+          );
+        } finally {
+          buttonEl.disabled = false;
+          inputEl.focus();
+        }
+      }
+
+      formEl.addEventListener("submit", sendMessage);
+
+      // Initial system message
+      appendMessage(
+        "You can ask factual questions about these HDFC schemes on Groww: expense ratio, exit load, minimum SIP, lock-in, riskometer, benchmark, and how to download statements. I will always include at least one official source link and cannot provide investment advice or handle personal information.",
+        "bot"
+      );
+    </script>
+  </body>
+  </html>
+
